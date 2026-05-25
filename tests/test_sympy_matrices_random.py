@@ -4,10 +4,8 @@ from sympy import (eye, cartes, I, conjugate, cos, sin, symbols, expand,
                    simplify, primefactors)
 from sympy.core.random import seed
 from sympy.core.numbers import Number
-from sympy_matrices_random import (_ssample, _jspec, _ELEMENTARY_SCALARS,
-                                   _ELEMENTARY_UNITS, random_matrix,
-                                   random_orthogonal_matrix,
-                                   random_unitary_matrix)
+from sympy_matrices_random import (random_matrix, random_orthogonal_matrix, random_unitary_matrix)
+from sympy_matrices_random.random import (_ssample, _jspec, _ELEMENTARY_SCALARS, _ELEMENTARY_UNITS)
 from sympy.testing.pytest import raises
 
 
