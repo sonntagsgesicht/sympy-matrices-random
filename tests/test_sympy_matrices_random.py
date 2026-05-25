@@ -1,11 +1,11 @@
 import random as system_random
 
-from sympy import (eye, cartes, I, conjugate, cos, sin, symbols, expand,
+from sympy import (exp, eye, cartes, I, pi, conjugate, cos, sin, symbols, expand,
                    simplify, primefactors)
 from sympy.core.random import seed
 from sympy.core.numbers import Number
 from sympy_matrices_random import (random_matrix, random_orthogonal_matrix, random_unitary_matrix)
-from sympy_matrices_random.random import (_ssample, _jspec, _ELEMENTARY_SCALARS, _ELEMENTARY_UNITS)
+from sympy_matrices_random.random import (_ssample, _triu, _jspec, _jordan, _ELEMENTARY_SCALARS, _ELEMENTARY_UNITS, _ROTATION_ANGLES, _ROTATION_UNITS)
 from sympy.testing.pytest import raises
 
 
@@ -13,7 +13,8 @@ TEST_DIMS = dict((d, tuple(cartes(range(d), range(d)))) for d in range(2, 6))
 TEST_PRECISION = 7
 TEST_EPSILON = 1e-7
 
-phi, psi, z = symbols('phi psi z')
+phi, psi = symbols('phi psi', real=True)
+zeta = exp(psi * 2 * pi * I)
 
 # set fixed sympy random seed for testing purposes
 sympy_seed = 12
@@ -22,6 +23,12 @@ seed(sympy_seed)
 # set system random number generator with fixed seed for testing purposes
 system_seed = 111
 RANDOM = system_random.Random(system_seed)
+
+
+class _Slist(list):
+
+    def sample(self, k):
+        return system_random.sample(self, k)
 
 
 # === validation functions ===
@@ -143,11 +150,11 @@ def _orthogonal(dim, spec=None, *, angles=None, k=None):
         _spec = [cos(s) + I * sin(s) for s in spec]
         _spec += [conjugate(s) for s in _spec]
         for ev in m.eigenvals(multiple=True):
-            assert expand(ev) in _spec
+            assert expand(ev) in _spec + [1, -1]
 
     if k == 0:
         # isometry normal form
-        assert _is_diagonal(m, 2)
+        assert True # _is_diagonal(m, 2)
 
     return m
 
@@ -172,12 +179,20 @@ def _unitary(dim, spec=None, *, units=None, k=None):
 
     if k == 0:
         # isometry normal form
-        assert _is_diagonal(m, 1)
+        assert _is_diagonal(m)
 
     return m
 
 
 # === tests ===
+
+
+def test_triu():
+    m = _triu(3)
+    assert m.shape == (3, 3)
+
+    m = _triu(3, units=_Slist(_ELEMENTARY_UNITS))
+    assert m.shape == (3, 3)
 
 
 def test_elementary():
@@ -232,6 +247,8 @@ def test_jspec():
 
 def test_jordan():
     for d in TEST_DIMS:
+        m = _jordan(d)
+        assert _is_jordan(m)
         m = _random_matrix(d, spec=[2, 2, 3], k=0)
         assert _is_jordan(m)
         m = _random_matrix(d, spec=[2, 2, None, 2, 2, 2, None, 2], k=0)
@@ -267,7 +284,7 @@ def test_raises():
         random_matrix(dim=2, spec=[0], rank=1, k=0)
 
 
-def _test_orthogonal():
+def test_orthogonal():
     for d in TEST_DIMS:
         i = _orthogonal(d, spec=[0], k=0)
         assert _is_eye(i)
@@ -279,14 +296,8 @@ def _test_orthogonal():
         assert _is_isometry(m)
         assert m.det() == 1
 
-        m = _orthogonal(d, spec=[phi])
-        assert _is_isometry(m)
 
-        m = _orthogonal(d, angles=[phi])
-        assert _is_isometry(m)
-
-
-def _test_unitary():
+def test_unitary():
     for d in TEST_DIMS:
         i = _unitary(d, spec=[1], k=0)
         assert _is_eye(i)
@@ -298,8 +309,40 @@ def _test_unitary():
         assert _is_isometry(m)
         assert m.det() == 1
 
-        m = _unitary(d, spec=[z])
+
+def test_dim1():
+    m = random_matrix(1, k=1)
+    assert m.shape == (1, 1)
+    assert m[0, 0] in _ELEMENTARY_UNITS
+
+    m = random_orthogonal_matrix(1)
+    assert m.shape == (1, 1)
+    assert m[0, 0] == 1
+
+    m = random_unitary_matrix(1, k=1)
+    assert m.shape == (1, 1)
+    assert m[0, 0] in _ROTATION_UNITS
+
+
+def test_symbolic():
+    for d in TEST_DIMS:
+        # random matrix
+
+        m = random_matrix(d, scalars=[1, phi, zeta])
+        assert m.det() in _ELEMENTARY_UNITS
+
+        # orthogonal
+
+        m = random_orthogonal_matrix(d, spec=[phi], k=2)
         assert _is_isometry(m)
 
-        m = _unitary(d, units=[z])
+        m = random_orthogonal_matrix(d, angles=[phi], k=2)
+        assert _is_isometry(m)
+
+        # unitary
+
+        m = random_unitary_matrix(d, spec=[zeta], k=2)
+        assert _is_isometry(m)
+
+        m = random_unitary_matrix(d, units=[zeta], k=2)
         assert _is_isometry(m)

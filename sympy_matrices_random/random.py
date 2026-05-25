@@ -134,7 +134,7 @@ def _jspec(spec):
 
 
 def _jordan(dim, *, spec=None, rank=None):
-    """
+    r"""
     Generate a random upper triangular n x n matrix in Jordan normal form.
 
     Parameters
@@ -142,9 +142,9 @@ def _jordan(dim, *, spec=None, rank=None):
     dim : int
         Dimension of the matrix.
     spec : iterable, optional
-        Spectrum specification.
+        Spectrum specification. Defaults to $\{1\}$.
     rank : int, optional
-        Rank of the matrix.
+        Rank of the matrix. Default is full rank.
 
     Returns
     -------
@@ -541,7 +541,7 @@ def _unitary(dim, *, units=None, k=None):
         k = 2 * dim
     if dim == 1:
         items = [_ssample(units) for _ in range(k)]  # 1 x 1 complex rot.
-        return Matrix(Mul(*items))
+        return Matrix([[Mul(*items)]])
     items = []
     for _ in range(k):
         # draw triple of complex units $(v, w, z)$

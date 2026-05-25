@@ -53,7 +53,8 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-addopts = " --doctest-modules -v --cov=sympy_matrices_random --cov-report=term-missing --cov-report=html"
+# addopts = " --doctest-modules -v --cov=sympy_matrices_random --cov-report=term-missing --cov-report=html"
+addopts = " --doctest-modules -v --cov=sympy_matrices_random --cov-report=term-missing"
 testpaths = ["sympy_matrices_random", "tests"]
 
 [tool.hatch.build.targets.wheel]
