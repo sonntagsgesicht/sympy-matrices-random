@@ -192,12 +192,13 @@ def random_matrix(dim, *, spec=None, scalars=None, units=None,
     r"""
     Creates a random square matrix n x n.
 
-    Such matrix may be of a given **rank** and be an upper **triangular** matrix.
+    Such matrix $\mathbf{S}$ may be of a given **rank**
+    and may be an upper **triangular** matrix.
 
     It is constructed as a product of **k** random
     `elementary matrices <https://en.wikipedia.org/wiki/Elementary_matrix>`_
-    with with elements given by **scalars** arguments for row-addtion and
-    **units** arguments for row-multiplcation.
+    with with **scalars** arguments for defining row-addtion operations and
+    **units** arguments for row-multiplcation operations.
 
     Eigenvalues may provided as **spec** argument.
     In order to specify not only eigenvalues but a random
@@ -217,11 +218,13 @@ def random_matrix(dim, *, spec=None, scalars=None, units=None,
         Dimension of the matrix.
     spec : iterable, optional
         Set of values for eigenvalues. Can be a list of eigenvalues or
-        tuples of (size, value) for Jordan blocks.
+        tuples of (size, value) for Jordan blocks. Default is None.
     scalars : iterable, optional
         Values used to build the transformation matrix $\mathbf{S}$.
+        Defaults to $\{1, -1\}$.
     units : iterable, optional
         Unit values used to build the transformation matrix $\mathbf{S}$.
+        Defaults to $\{1, -1\}$.
     triangular : bool, optional
         If True, an upper triangular matrix is returned. Default is False.
     rank : int, optional
@@ -386,11 +389,13 @@ def random_orthogonal_matrix(dim, *, spec=None, angles=None, k=None):
     r"""
     Generate a random orthogonal matrix n x n.
 
-    An orthogonal matrix is an isometry in n dimensional Euclidian space,
-    s.th. $\mathbf{O}^{t} = \mathbf{O}^{-1}$.
+    An orthogonal matrix $\mathbf{O}$ is a real matrix
+    such that $\mathbf{O}^{t} = \mathbf{O}^{-1}$.
+    It describes an isometry in n dimensional Euclidian space.
 
-    Build as a product of $2 \times 2$ rotations with rotation angles values drawn
-    randomly from **angles**. The number of these rotations is given by **k**.
+    Build as a product of $2 \times 2$ rotations, known as Givens rotations,
+    with rotation angles values drawn randomly from **angles**.
+    The number of these rotations is given by **k**.
 
     If **spec** is given, it should contain a list of real valued angles
     to be drawn from. These define the the isometry normal form
@@ -399,14 +404,17 @@ def random_orthogonal_matrix(dim, *, spec=None, angles=None, k=None):
     Then the resulting isometry matrix will be the conjugate product
     $\mathbf{O}^{-1} \cdot \mathbf{D} \cdot \mathbf{O}$.
 
+    If **spec** is None (default) only $\mathbf{O}$ will be returned.
+    If **k** is $0$ only $\mathbf{D}$ will be returned.
+
     Parameters
     ----------
     dim : int
         Dimension of the matrix.
     spec : iterable, optional
-        Set of angles to set the isometry normal form.
+        Set of angles to build the isometry normal form. Default is None.
     angles : iterable, optional
-        Rotation angles to sample from.
+        Rotation angles to sample from. Defaults to fractions $\{\pi n/2 \mid n=1 \dots 4 \}$.
     k : int, optional
         Number of rotations to build the matrix. Defaults to 2 * dim.
 
@@ -417,6 +425,8 @@ def random_orthogonal_matrix(dim, *, spec=None, angles=None, k=None):
 
     See Also
     --------
+    rot_givens: Givens rotation matrix.
+
     random_unitary_matrix : Complex generalization of orthogonal matrices.
 
     Examples
@@ -551,21 +561,31 @@ def random_unitary_matrix(dim, *, spec=None, units=None, k=None):
     r"""
     Generate a random unitary matrix n x n.
 
-    A unitary matrix $\mathbf{U}$ is an isometry in n-dimensional unitary
-    (complex) vectorspace, s.th. $\mathbf{U}^H = \mathbf{U}^{-1}$.
+    A unitary matrix $\mathbf{U}$ is complex matrix such that
+    $\mathbf{U}^H = \mathbf{U}^{-1}.$
+    It describes an isometry in n-dimensional unitary (complex) vectorspace.
+
+    If **spec** is given, it defines the set of random entries of an isometry normal form
+    as a diagonal matrix $\mathbf{D}$ with a diagonal of roots of unity.
+
+    Then the resulting isometry matrix will be the conjugate product
+    $\mathbf{U}^{-1} \cdot \mathbf{D} \cdot \mathbf{U}$.
+
+    If **spec** is None (default) only $\mathbf{U}$ will be returned.
+    If **k** is $0$ only $\mathbf{D}$ will be returned.
 
     Note, **spec** (the set of eigenvalues) and **units** must
     consist of complex roots of unity only,
-    i.e. complex numbers $z$, s.th. $|z| = z * \bar{z} = 1$.
+    i.e. complex numbers $z$ with $|z| = z * \bar{z} = 1$.
 
     Parameters
     ----------
     dim : int
         Dimension of the matrix.
     spec : iterable, optional
-        Set of eigenvalues. Must consist of complex roots of unity.
+        Set of eigenvalues. Must consist of complex roots of unity. Default is None.
     units : iterable, optional
-        Complex roots of unity used to build the matrix.
+        Complex roots of unity used to build the matrix. Defaults to $\{1, i, -1, -i \}$.
     k : int, optional
         Number of rotations to build the matrix. Defaults to 2 * dim.
 
