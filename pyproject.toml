@@ -52,5 +52,9 @@ dev = [
     "myst-parser>=2.0",
 ]
 
+[tool.pytest.ini_options]
+addopts = " --doctest-modules -v --cov=sympy_matrices_random --cov-report=term-missing --cov-report=html"
+testpaths = ["sympy_matrices_random", "tests"]
+
 [tool.hatch.build.targets.wheel]
 packages = ["sympy_matrices_random"]
