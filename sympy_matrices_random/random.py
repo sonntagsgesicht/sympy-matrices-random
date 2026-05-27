@@ -165,7 +165,7 @@ def _jordan(dim, *, spec=None, rank=None):
     spec = _jspec(spec)
 
     # split eigenvalues in zero and non zero to ensure proper rank
-    zero_spec = [(i, 0) for i, v in spec if not v] or [(1, 0)]
+    zero_spec = [(i, v) for i, v in spec if not v] or [(1, 0)]
     spec = [(i, v) for i, v in spec if v]
     if rank == dim:
         if not spec:
