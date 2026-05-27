@@ -33,8 +33,8 @@ def _sample(scalars, k):
 
     Returns
     -------
-    list or Any
-        A list of k samples, or a single sample if k is None.
+    list
+        A list of k samples.
     """
     if hasattr(scalars, 'sample'):
         return scalars.sample(k)
@@ -164,26 +164,28 @@ def _jordan(dim, *, spec=None, rank=None):
 
     spec = _jspec(spec)
 
+    # split eigenvalues in zero and non zero to ensure proper rank
+    zero_spec = [(i, 0) for i, v in spec if not v] or [(1, 0)]
+    spec = [(i, v) for i, v in spec if v]
+    if rank == dim:
+        if not spec:
+            raise ValueError("Unable to build Jordan matrix of full rank "
+                            "with all eigenvalues to be 0.")
+
     # draw jordan blocks
-    blocks = []
-    cnt = d = r = 0
-    while r < rank:
-        cnt += 1
-        if cnt > _MAX_ITER_JORDAN * dim:
-            raise RuntimeError(f"Unable to find Jordan of rank {rank} "
-                               f"after {cnt} attempts. Please check inputs.")
-        i, v = _ssample(spec)
-        # limit block size not to exceed rank
-        i = min(i, rank - r)
-        blocks.append((i , v))
-        d += i
-        r += i if v else i - 1
-        while dim < d:  # remove first blocks if dim is exceeded
-            i, v = blocks.pop(0)
-            d -= i
-            r -= i if v else i - 1
-    blocks.extend([(1, 0)] * (dim - d))
-    blocks = _sample(blocks, len(blocks))
+    # eigenvals 0 to meet dim - rank
+    blocks = [_ssample(zero_spec) for _ in range(dim - rank)]
+    if spec:
+        while sum(i for i, v in blocks) < dim:
+            blocks.append(_ssample(spec))
+
+    # adj dimension and rank without changing dim - rank
+    while not dim == sum(i for i, v in blocks):
+        i, v = blocks.pop(0)  # flush first
+        j = max(1, i - 1) if dim < sum(i for i, v in blocks) + i else i + 1
+        blocks.append((j, v))  # append
+
+    blocks = _sample(blocks, len(blocks))  # shuffle blocks
     return Matrix.diag(*(Matrix.jordan_block(i, v) for i, v in blocks))
 
 
@@ -291,18 +293,18 @@ def random_matrix(dim, *, spec=None, scalars=None, units=None,
 
     >>> random_matrix(6, spec=(2,None,2,2,2,None,2,2,0), k=0)
     Matrix([
-    [2, 0, 0, 0, 0, 0],
+    [2, 1, 0, 0, 0, 0],
     [0, 2, 1, 0, 0, 0],
     [0, 0, 2, 0, 0, 0],
-    [0, 0, 0, 2, 0, 0],
-    [0, 0, 0, 0, 2, 0],
+    [0, 0, 0, 2, 1, 0],
+    [0, 0, 0, 0, 2, 1],
     [0, 0, 0, 0, 0, 2]])
 
     >>> # equivalent to
     >>> random_matrix(6, spec=((2,1),(2,4),(0,1)), k=0)
     Matrix([
-    [4, 1, 0, 0, 0, 0],
-    [0, 4, 0, 0, 0, 0],
+    [1, 1, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0],
     [0, 0, 1, 1, 0, 0],
     [0, 0, 0, 1, 0, 0],
     [0, 0, 0, 0, 1, 1],
