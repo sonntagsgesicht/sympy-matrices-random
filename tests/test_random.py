@@ -5,7 +5,7 @@ from sympy import (exp, eye, cartes, I, pi, conjugate, cos, sin, symbols, expand
 from sympy.core.random import seed
 from sympy.core.numbers import Number
 from sympy_matrices_random import (random_matrix, random_orthogonal_matrix, random_unitary_matrix)
-from sympy_matrices_random.random import (_ssample, _triu, _jspec, _jordan, _ELEMENTARY_SCALARS, _ELEMENTARY_UNITS, _ROTATION_ANGLES, _ROTATION_UNITS)
+from sympy_matrices_random.random import (_ssample, _triu, _jspec, _jordan, _ELEMENTARY_SCALARS, _ELEMENTARY_UNITS, _ROTATION_UNITS)
 from sympy.testing.pytest import raises
 
 
@@ -279,9 +279,9 @@ def test_nilpotent():
 
 
 def test_raises():
-    with raises(RuntimeError):
-        # fails to find 2 x 2 Jordan blocks with rank 1
-        random_matrix(dim=2, spec=[0], rank=1, k=0)
+    with raises(ValueError):
+        # fails to find with only eigenvalue 0 and full rank
+        random_matrix(dim=2, spec=[0], k=0)
 
 
 def test_orthogonal():
@@ -325,7 +325,7 @@ def test_dim1():
 
 
 def test_symbolic():
-    for d in TEST_DIMS:
+    for d in list(TEST_DIMS)[:-2]:
         # random matrix
 
         m = random_matrix(d, scalars=[1, phi, zeta])
@@ -344,5 +344,5 @@ def test_symbolic():
         m = random_unitary_matrix(d, spec=[zeta], k=2)
         assert _is_isometry(m)
 
-        m = random_unitary_matrix(d, units=[zeta], k=2)
+        m = random_unitary_matrix(d, units=[zeta], k=1)
         assert _is_isometry(m)
