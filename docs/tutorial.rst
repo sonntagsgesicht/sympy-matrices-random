@@ -1,3 +1,6 @@
 
 Tutorial
 ========
+
+
+.. include:: ..//HOWTO.rst

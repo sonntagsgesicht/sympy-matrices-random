@@ -10,10 +10,6 @@ Welcome!
     api
     releases
 
-.. include:: tutorial_orthogonal.md
-
-.. include:: tutorial_unitary.md
-
 Index
 -----
 
