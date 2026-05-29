@@ -192,7 +192,7 @@ def _jordan(dim, *, spec=None, rank=None):
 def random_matrix(dim, *, spec=None, scalars=None, units=None,
                   triangular=False, rank=None, k=None):
     r"""
-    Creates a random square matrix n x n.
+    Generate a random square matrix n x n.
 
     Such matrix $\mathbf{S}$ may be of a given **rank**
     and may be an upper **triangular** matrix.
@@ -216,6 +216,7 @@ def random_matrix(dim, *, spec=None, scalars=None, units=None,
 
     Parameters
     ----------
+
     dim : int
         Dimension of the matrix.
     spec : iterable, optional
@@ -255,60 +256,100 @@ def random_matrix(dim, *, spec=None, scalars=None, units=None,
 
     >>> from sympy_matrices_random import random_matrix
 
+    Generate a 3x3 random matrix
+
     >>> random_matrix(3)
     Matrix([
     [1,  1,  1],
     [0,  0, -1],
     [0, -1, -1]])
 
-    >>> from sympy import sqrt
-    >>> random_matrix(3, scalars=(sqrt(2), 2))
-    Matrix([
-    [       1,        0,  0],
-    [       0,       -1,  0],
-    [-sqrt(2), -sqrt(2), -1]])
+    The argument **k** gives some control of complexity
 
-    >>> random_matrix(3, scalars=(1,), units=(2,))
-    Matrix([
-    [1, 0,  0],
-    [0, 2,  8],
-    [0, 0, 16]])
-
-
-    >>> m = random_matrix(3, spec=(1, 1, 3), scalars=(1, sqrt(2), 2))
+    >>> m = random_matrix(3, k=42)
     >>> m
     Matrix([
-    [3,  4,  2],
-    [0,  3,  1],
-    [0, -4, -1]])
+    [0, -4,  1],
+    [1, -8,  3],
+    [0,  3, -1]])
+
+    By default the result has full rank and integer values.
+    And so has the inverse, too.
+
+    >>> m.inv()
+    Matrix([
+    [ 1, 1,  4],
+    [-1, 0, -1],
+    [-3, 0, -4]])
+
+    One can specify the rank of the resulting matrix.
+    This is particularly useful for testing algorithms
+    that handle singular matrices.
+
+    >>> m = random_matrix(4, rank=2)
+    >>> m.rank()
+    2
+
+    The **spec** argument allows to define the eigenvalues of the matrix.
+    As simple list of eigenvalues will define $\mathbf{J}$ as a diagonal
+    matrix with random values drawn from this list.
+
+    To promote larger Jordan blocks repeat the eigenvalue or
+    specify the size of these blocks for each eigenvalue as
+    tuples **(size, value)**.
+
+    >>> m = random_matrix(4, spec=(1, 1, 3))
+    >>> m
+    Matrix([
+    [-1,  2,  0, 0],
+    [-4,  5,  0, 0],
+    [-1,  1,  2, 1],
+    [ 3, -3, -1, 0]])
 
     >>> m.eigenvals(multiple=True)
-    [1, 1, 3]
+    [1, 3, 1, 1]
 
     >>> m.jordan_form(calc_transform=False)
     Matrix([
-    [1, 1, 0],
-    [0, 1, 0],
-    [0, 0, 3]])
+    [1, 1, 0, 0],
+    [0, 1, 0, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 3]])
 
-    >>> random_matrix(6, spec=(2,None,2,2,2,None,2,2,0), k=0)
-    Matrix([
-    [2, 1, 0, 0, 0, 0],
-    [0, 2, 1, 0, 0, 0],
-    [0, 0, 2, 0, 0, 0],
-    [0, 0, 0, 2, 1, 0],
-    [0, 0, 0, 0, 2, 1],
-    [0, 0, 0, 0, 0, 2]])
+    If you set `k=0`, the function skips the transformation matrix $\mathbf{S}$
+    and returns the Jordan matrix $\mathbf{J}$ directly.
+    This is excellent for creating symbolic templates of matrices.
 
-    >>> # equivalent to
-    >>> random_matrix(6, spec=((2,1),(2,4),(0,1)), k=0)
+    You can use **SymPy symbols** to create matrices with symbolic entries.
+
+    >>> from sympy import symbols
+    >>> a, b, u, v = symbols('a b u v')
+
+    >>> random_matrix(4, spec=[(2, u), (2, v)], k=0)
     Matrix([
-    [1, 1, 0, 0, 0, 0],
-    [0, 1, 0, 0, 0, 0],
-    [0, 0, 1, 1, 0, 0],
-    [0, 0, 0, 1, 0, 0],
-    [0, 0, 0, 0, 1, 1],
-    [0, 0, 0, 0, 0, 1]])
+    [u, 1, 0, 0],
+    [0, u, 0, 0],
+    [0, 0, v, 1],
+    [0, 0, 0, v]])
+
+    In general matrix entries of $\mathbf{S}$ are sums and products of
+    **scalars** and **units**.
+
+    >>> m = random_matrix(3, scalars=(a, b), units=(u,))
+    >>> m
+    Matrix([
+    [             u, 0,      0],
+    [a*b*u**3 + a*u, 1, b*u**2],
+    [        a*u**3, 0,   u**2]])
+
+    In contrast, the inverse $\mathbf{S^{-1}}$ consists of
+    sums and products of scalars and units as well as fractions of units.
+
+    >>> m.inv()
+    Matrix([
+    [1/u, 0,       0],
+    [ -a, 1,      -b],
+    [ -a, 0, u**(-2)]])
 
     .. ..testcleanup::
 
@@ -427,8 +468,6 @@ def random_orthogonal_matrix(dim, *, spec=None, angles=None, k=None):
 
     See Also
     --------
-    rot_givens: Givens rotation matrix.
-
     random_unitary_matrix : Complex generalization of orthogonal matrices.
 
     Examples
@@ -440,47 +479,89 @@ def random_orthogonal_matrix(dim, *, spec=None, angles=None, k=None):
        >>> _rng_state = rng.getstate()
        >>> seed(0)
 
-    >>> from sympy import expand, pi
-    >>> from sympy.abc import phi
+    >>> from sympy import expand, pi, sin, symbols
+    >>> from sympy.abc import phi, psi
     >>> from sympy_matrices_random import random_orthogonal_matrix
 
-    >>> random_orthogonal_matrix(3)
+    Generate a 3x3 random orthogonal matrix.
+
+    >>> q = random_orthogonal_matrix(3)
+    >>> q
     Matrix([
     [             1/2, sqrt(2)/2,              1/2],
     [-1/2 + sqrt(2)/4,      -1/2,  sqrt(2)/4 + 1/2],
     [ sqrt(2)/4 + 1/2,      -1/2, -1/2 + sqrt(2)/4]])
 
-    >>> angles = pi/4, pi/2, pi*3/4
-    >>> random_orthogonal_matrix(3, angles=angles, k=1)
-    Matrix([
-    [-sqrt(2)/2, -sqrt(2)/2, 0],
-    [ sqrt(2)/2, -sqrt(2)/2, 0],
-    [         0,          0, 1]])
-
-    >>> random_orthogonal_matrix(3, spec=angles, k=0)
-    Matrix([
-    [ sqrt(2)/2, sqrt(2)/2, 0],
-    [-sqrt(2)/2, sqrt(2)/2, 0],
-    [         0,         0, 1]])
-
-    >>> random_orthogonal_matrix(3, spec=(phi,), k=0)
-    Matrix([
-    [ cos(phi), sin(phi), 0],
-    [-sin(phi), cos(phi), 0],
-    [        0,        0, 1]])
-
-    >>> o = random_orthogonal_matrix(3, spec=angles, angles=angles, k=2)
-    >>> o
-    Matrix([
-    [-sqrt(2)/2,            -1/2,             1/2],
-    [       1/2, 1/2 - sqrt(2)/4, sqrt(2)/4 + 1/2],
-    [      -1/2, sqrt(2)/4 + 1/2, 1/2 - sqrt(2)/4]])
-
-    >>> expand(o.T * o)
+    >>> expand(q.T * q)
     Matrix([
     [1, 0, 0],
     [0, 1, 0],
     [0, 0, 1]])
+
+    **Controlling the Rotations.**
+    To control how many elementary Givens rotations are multiplied
+    to form the random orthogonal matrix, use the **k** argument.
+    Larger k yields a matrix that is “more random”. The default is 2*dim.
+
+    >>> Q = random_orthogonal_matrix(3, k=20)  # more rotations than the default 8
+    >>> expand(Q)
+    Matrix([
+    [sqrt(2)/2,          0, sqrt(2)/2],
+    [     -1/2,  sqrt(2)/2,       1/2],
+    [     -1/2, -sqrt(2)/2,       1/2]])
+
+    The **angles** argument serves as the set of angles
+    from which the elementary Givens rotations are sampled.
+
+    >>> angles = pi/3, pi*2/3  # 60°, 120°
+    >>> random_orthogonal_matrix(3, angles=angles, k=1)
+    Matrix([
+    [       1/2, 0, sqrt(3)/2],
+    [         0, 1,         0],
+    [-sqrt(3)/2, 0,       1/2]])
+
+    Even as symbols
+
+    >>> random_orthogonal_matrix(3, angles=(phi, psi), k=2)
+    Matrix([
+    [ cos(psi), sin(phi)*sin(psi), sin(psi)*cos(phi)],
+    [        0,          cos(phi),         -sin(phi)],
+    [-sin(psi), sin(phi)*cos(psi), cos(phi)*cos(psi)]])
+
+    The function takes a list of rotation angles as **spec** argument.
+    It constructs a block-diagonal matrix from random $2\times2$
+    rotation blocks (plus an optional $1\times1$ block for odd dimensions)
+    defining the rotation normal form.
+
+    Such specific rotation angles can be floating point values
+
+    >>> Q = random_orthogonal_matrix(4, spec=angles, k=0)
+    >>> expand(Q)
+    Matrix([
+    [       1/2, sqrt(3)/2,          0,         0],
+    [-sqrt(3)/2,       1/2,          0,         0],
+    [         0,         0,       -1/2, sqrt(3)/2],
+    [         0,         0, -sqrt(3)/2,      -1/2]])
+
+    or symbols
+
+    >>> random_orthogonal_matrix(4, spec=(phi, psi), k=0)
+    Matrix([
+    [ cos(psi), sin(psi),         0,        0],
+    [-sin(psi), cos(psi),         0,        0],
+    [        0,        0,  cos(psi), sin(psi)],
+    [        0,        0, -sin(psi), cos(psi)]])
+
+    By default the orthogonal matrix is a rotation, i.e. has determinant 1.
+    To turn it into a refelction with determinant -1:
+
+    >>> Q = random_orthogonal_matrix(3)
+    >>> Q[0, :] = -Q[0, :]  # flip a row to change sign
+    >>> Q.det()
+    -1
+
+    These examples show how to generate orthogonal matrices suited
+    for numerical experiments, symbolic derivations, or test‑suite generation.
 
     .. ..testcleanup::
 
@@ -609,42 +690,58 @@ def random_unitary_matrix(dim, *, spec=None, units=None, k=None):
        >>> _rng_state = rng.getstate()
        >>> seed(1)
 
-    >>> from sympy import I, pi, exp, expand, simplify
+    >>> from sympy import I, pi, exp, expand, simplify, symbols
     >>> from sympy_matrices_random import random_unitary_matrix
 
+    Generate 3×3 unitary matrix (default settings)
+
     >>> u = random_unitary_matrix(3)
-    >>> expand(u)
+    >>> u
     Matrix([
     [ 0,  0, -I],
     [-1,  0,  0],
     [ 0, -I,  0]])
-
-    >>> roots_of_unity = I, exp(I * pi / 4), -I, exp(-I * pi / 4)
-
-    >>> random_unitary_matrix(3, units=roots_of_unity, k=1)
-    Matrix([
-    [sqrt(2)*exp(-I*pi/4)/2, 0, sqrt(2)*exp(-I*pi/4)/2],
-    [                     0, 1,                      0],
-    [-sqrt(2)*exp(I*pi/4)/2, 0,  sqrt(2)*exp(I*pi/4)/2]])
-
-    >>> random_unitary_matrix(3, spec=roots_of_unity, k=0)
-    Matrix([
-    [-I,           0,           0],
-    [ 0, exp(I*pi/4),           0],
-    [ 0,           0, exp(I*pi/4)]])
-
-    >>> u = simplify(random_unitary_matrix(3, spec=roots_of_unity))
-    >>> u
-    Matrix([
-    [exp(-I*pi/4),  0, 0],
-    [           0, -I, 0],
-    [           0,  0, I]])
 
     >>> expand(u.H * u)
     Matrix([
     [1, 0, 0],
     [0, 1, 0],
     [0, 0, 1]])
+
+    **Control of Rotations**.
+    The **k** argument controls how many elementary complex rotation cells
+    are multiplied to form the random matrix. The default is 2*dim.
+
+    >>> u = random_unitary_matrix(5, k=30)  # a denser random unitary matrix
+
+    The **units** argument defines the set of complex numbers
+    (roots of unity) from which the elementary rotation cells are drawn.
+
+    >>> roots_of_unity = I, exp(I * pi / 4), -I, exp(-I * pi / 4)
+
+    >>> random_unitary_matrix(3, units=roots_of_unity, k=1)
+    Matrix([
+    [sqrt(2)*exp(-I*pi/4)/2, 0, -sqrt(2)*exp(-I*pi/4)/2],
+    [                     0, 1,                       0],
+    [ sqrt(2)*exp(I*pi/4)/2, 0,   sqrt(2)*exp(I*pi/4)/2]])
+
+    Specific eigenvalues may provided as **spec** argument
+
+    >>> x = symbols('x', real=True)
+    >>> spec = exp(I * x), exp(I * pi / 4)
+    >>> U = random_unitary_matrix(3, spec=spec, units=spec, k=1)
+
+    Without given **spec** the function returns
+    a matrix with determinat 1 by default
+
+    >>> random_unitary_matrix(6).det()
+    1
+
+    Random determinats can be obtained by providing **spec**
+
+    >>> spec = exp(I * x), exp(I * pi / 4)
+    >>> random_unitary_matrix(6, spec=spec).det()
+    I*exp(4*I*x)
 
     .. ..testcleanup::
 

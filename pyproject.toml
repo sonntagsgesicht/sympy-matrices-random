@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "sympy_matrices_random"
 version = "0.1.0"
 description = "A package for working with random matrices using SymPy"
-readme = "README.md"
+readme = "README.rst"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
@@ -35,13 +35,17 @@ dev = [
     "sphinx>=7.0",
     "sphinx-rtd-theme>=1.3",
     "myst-parser>=2.0",
-    "sphinx_math_dollar"
+    "sphinx_math_dollar",
+    "m2r2",
+    "sphinx_copybutton",
+    "furo",
+    "sphinx_pytype_substitution"
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/sympy-matrices-random"
+Homepage = "https://github.com/sonntagsgesicht/sympy-matrices-random"
 Documentation = "https://sympy-matrices-random.readthedocs.io"
-Repository = "https://github.com/yourusername/sympy-matrices-random"
+Repository = "https://github.com/sonntagsgesicht/sympy-matrices-random"
 
 [dependency-groups]
 dev = [
