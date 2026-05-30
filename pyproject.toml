@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build"]
+build-backend = "uv_build"
 
 [project]
 name = "sympy_matrices_random"
@@ -39,7 +39,9 @@ dev = [
     "m2r2",
     "sphinx_copybutton",
     "furo",
-    "sphinx_pytype_substitution"
+    "sphinx_pytype_substitution",
+    "twine",
+    "act"
 ]
 
 [project.urls]
@@ -61,5 +63,6 @@ dev = [
 addopts = " --doctest-modules -v --cov=sympy_matrices_random --cov-report=term-missing"
 testpaths = ["sympy_matrices_random", "tests"]
 
-[tool.hatch.build.targets.wheel]
-packages = ["sympy_matrices_random"]
+[tool.uv.build-backend]
+module-name = "sympy_matrices_random"
+module-root = ""
