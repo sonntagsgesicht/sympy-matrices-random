@@ -28,7 +28,12 @@ or
   pip install sympy-matrices-random
 
 
+Documentation
+~~~~~~~~~~~~~
+
+Find out more at the `docs <https://sympy-matrices-random.readthedocs.io>`_.
+
 License
 ~~~~~~~
 
-MIT License
+BSD3 License
