@@ -1,3 +1,19 @@
+"""
+sympy.matrices.random
+=====================
+
+Utility functions to generate random matrices with prescribed algebraic
+properties (rank, spectrum, orthogonality, unitarity).  The core public
+functions are :func:`random_matrix`, :func:`random_orthogonal_matrix`,
+and :func:`random_unitary_matrix`.
+"""
+
+__all__ = [
+    "random_matrix",
+    "random_orthogonal_matrix",
+    "random_unitary_matrix",
+]
+
 from sympy import I, Matrix, Mul, conjugate, im, pi, re, rot_givens
 from sympy.core.random import sample
 

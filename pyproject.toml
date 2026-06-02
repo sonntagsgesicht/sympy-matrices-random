@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "A package for working with random matrices using SymPy"
 readme = "README.rst"
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = {text = "BSD-3-Clause"}
 authors = [
     {name = "Jan-Philipp Hoffmann", email = ""}
 ]
@@ -40,8 +40,7 @@ dev = [
     "sphinx_copybutton",
     "furo",
     "sphinx_pytype_substitution",
-    "twine",
-    "act"
+    "twine"
 ]
 
 [project.urls]
