@@ -31,7 +31,7 @@ or
 Documentation
 ~~~~~~~~~~~~~
 
-Find out more at the `docs <https://sympy-matrices-random.readthedocs.io>`_.
+Find out more in the `docs <https://sympy-matrices-random.readthedocs.io>`_.
 
 License
 ~~~~~~~

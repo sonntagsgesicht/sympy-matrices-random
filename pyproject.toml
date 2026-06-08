@@ -4,13 +4,13 @@ build-backend = "uv_build"
 
 [project]
 name = "sympy_matrices_random"
-version = "0.1.0"
+version = "0.1.1"
 description = "A package for working with random matrices using SymPy"
 readme = "README.rst"
 requires-python = ">=3.10"
 license = {text = "BSD-3-Clause"}
 authors = [
-    {name = "Jan-Philipp Hoffmann", email = ""}
+    {name = "sonntagsgesicht", email = "sonntagsgesicht@icloud.com"}
 ]
 keywords = ["sympy", "matrix", "random", "linear algebra"]
 classifiers = [

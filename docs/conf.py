@@ -9,10 +9,10 @@ except ImportError:
 
 
 project = 'Random Matrices for SymPy'
-copyright = '2026, Jan-Philipp Hoffmann'
-author = 'Jan-Philipp Hoffmann'
-version = '0.1.0'
-release = '0.1.0'
+copyright = '2026, Sonntagsgesicht'
+author = 'Sonntagsgesicht'
+version = '0.1.1'
+release = '0.1.1'
 
 extensions = [
     'sphinx_pytype_substitution',
